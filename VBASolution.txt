@@ -1,0 +1,119 @@
+Sub VBAHSoultion()
+
+'Set workseets type
+Dim ws As Worksheet
+Dim Header As Boolean
+Dim Master As Boolean
+    
+        Header = False
+        Master = True
+'Loop through all worksheets
+For Each ws In Worksheets
+
+'Define variables for information and set
+Dim Ticker As String
+    Ticker = " "
+        
+Dim Totalvolume As Double
+    Totalvolume = 0
+Dim OpenPrice As Double
+    OpenPrice = 0
+
+Dim Closeprice As Double
+    Closeprice = 0
+Dim Change As Double
+    Change = 0
+Dim Percent As Double
+    Percent = 0
+
+'Set result table
+Dim ResultTable As Long
+ResultTable = 2
+
+
+'Count until the end of worksheet
+Dim Lastrow As Long
+Dim i As Long
+        
+Lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+'Headers for each ws
+ If Header Then
+            
+    Range("i1").Value = "Ticker"
+    Range("j1").Value = "Yearly Change"
+    Range("l1").Value = "Total Stock Volume"
+    Range("k1").Value = "Percent Change"
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+          
+
+Else
+   Header = True
+End If
+        
+'intial stock value, loop until the end of ws
+OpenPrice = ws.Cells(2, 3).Value
+For i = 2 To Lastrow
+        
+      
+'if same ticker then if not record new name
+If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+Ticker = ws.Cells(i, 1).Value
+                
+'math for other columns
+Closeprice = ws.Cells(i, 6).Value
+Change = Closeprice - OpenPrice
+If OpenPrice <> 0 Then
+    Percent = (Change / OpenPrice) * 100
+
+    End If
+                
+'adding stock to total volume
+Totalvolume = Totalvolume + ws.Cells(i, 7).Value
+              
+'populate
+ws.Range("I" & ResultTable).Value = Ticker
+ws.Range("J" & ResultTable).Value = Change
+              
+'visual coloring
+If (Change > 0) Then
+    ws.Range("J" & ResultTable).Interior.ColorIndex = 4
+ElseIf (Change <= 0) Then
+                  
+ws.Range("J" & ResultTable).Interior.ColorIndex = 3
+End If
+ 'Print ticker name in result table
+ws.Range("K" & ResultTable).Value = (CStr(Percent) & "%")
+ws.Range("L" & ResultTable).Value = Totalvolume
+                
+ 'add 1 to result table rows count
+ResultTable = ResultTable + 1
+            
+ 'record open price
+OpenPrice = ws.Cells(i + 1, 3).Value
+Change = 0
+Closeprice = 0
+Percent = 0
+Totalvolume = 0
+
+            
+Else
+'increase total volume
+Totalvolume = Totalvolume + ws.Cells(i, 7).Value
+End If
+    
+      Next i
+
+'make sure its not the first spreasheet
+If Not Master Then
+        
+Else
+Master = False
+End If
+        
+    Next ws
+
+End Sub
